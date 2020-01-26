@@ -133,9 +133,9 @@ public class Board {
     	List<Move> possibleMoves = generateListOfPossibleMoves(c);
     	
     	if(contains(possibleMoves, move)) {
-    		Piece temp = this.board[startRow][startCol];
-    		this.board[startRow][startCol] = this.board[endRow][endCol];
-    		this.board[endRow][endCol] = temp;
+    		this.board[endRow][endCol] = this.board[startRow][startCol];
+    		this.board[startRow][startCol] = Piece.EMPTY;
+    		checkForKingship(endRow, endCol);
     		
     		//take out jumped piece
     		if(Math.abs(startCol - endCol) == 2) {
@@ -211,46 +211,59 @@ public class Board {
 	    		
 	    		//-----------------JUMPING-----------
 	    		
-	    		//Jump to right
-	    		if(col <= 5 && getPiece(row + rowOffset, col + 1) != Piece.EMPTY && getColour(getPiece(row + rowOffset, col + 1)) != c && getPiece(row + 2*rowOffset, col + 2) == Piece.EMPTY) {
-	    			validMoves.add(new Move(row, col, row + 2*rowOffset, col + 2));
-	    		}
-	    		//Jump to left
-	    		if(col >= 2 && getPiece(row + rowOffset, col - 1) != Piece.EMPTY && getColour(getPiece(row + rowOffset, col - 1)) != c && getPiece(row + 2*rowOffset, col - 2) == Piece.EMPTY) {
-	    			validMoves.add(new Move(row, col, row + 2*rowOffset, col - 2));
+	    		
+	    		if(!(row + 2*rowOffset == 8 || row + 2*rowOffset == -1)) {
+	    			//Jump to right
+	    			if(col <= 5 && getPiece(row + rowOffset, col + 1) != Piece.EMPTY && getColour(getPiece(row + rowOffset, col + 1)) != c && getPiece(row + 2*rowOffset, col + 2) == Piece.EMPTY) {
+		    			validMoves.add(new Move(row, col, row + 2*rowOffset, col + 2));
+		    		}
+		    		//Jump to left
+		    		if(col >= 2 && getPiece(row + rowOffset, col - 1) != Piece.EMPTY && getColour(getPiece(row + rowOffset, col - 1)) != c && getPiece(row + 2*rowOffset, col - 2) == Piece.EMPTY) {
+		    			validMoves.add(new Move(row, col, row + 2*rowOffset, col - 2));
+		    		}
 	    		}
     		}
     	}
     	
-//    	if(c == Player.Colour.RED) {
-//    		if(col > 0 && getPiece(row - 1, col - 1) == Piece.EMPTY) {
-//    			validMoves.add(new Move(row, col, row - 1, col - 1));
-//    		}
-//    		
-//    		if (col < SIZE - 1 ) {
-//    			if(getPiece(row - 1, col + 1) == Piece.EMPTY) {
-//    				validMoves.add(new Move(row, col, row - 1, col + 1));
-//    			}
-//    		}
-//    	}
-    	
+    	//KING MOVES
     	else if(piece == Piece.BLACK_KING || piece == Piece.RED_KING) {
-    		if(col > 0) {
-    			if(getPiece(row + 1, col - 1) == Piece.EMPTY) {
-    				validMoves.add(new Move(row, col, row + 1, col - 1));
-    			}
-    			if(getPiece(row - 1, col - 1) == Piece.EMPTY) {
-    				validMoves.add(new Move(row, col, row - 1, col - 1));
-    			}
-    		}
-    		else if(col < SIZE - 1) {
-    			if(getPiece(row + 1, col + 1) == Piece.EMPTY) {
-    				validMoves.add(new Move(row, col, row + 1, col + 1));
-    			}
-    			if(getPiece(row - 1, col + 1) == Piece.EMPTY) {
-    				validMoves.add(new Move(row, col, row - 1, col + 1));
-    			}
-    		}
+    		
+	    		if(col > 0) {
+	    			if(getPiece(row + 1, col - 1) == Piece.EMPTY) {
+	    				validMoves.add(new Move(row, col, row + 1, col - 1));
+	    			}
+	    			if(getPiece(row - 1, col - 1) == Piece.EMPTY) {
+	    				validMoves.add(new Move(row, col, row - 1, col - 1));
+	    			}
+	    		}
+	    		else if(col < SIZE - 1) {
+	    			if(getPiece(row + 1, col + 1) == Piece.EMPTY) {
+	    				validMoves.add(new Move(row, col, row + 1, col + 1));
+	    			}
+	    			if(getPiece(row - 1, col + 1) == Piece.EMPTY) {
+	    				validMoves.add(new Move(row, col, row - 1, col + 1));
+	    			}
+	    		}
+	    		
+	    		//------------------------JUMPIING--------
+	    		
+	    			//Jump down
+	    			if(col <= 5 && getPiece(row + 1, col + 1) != Piece.EMPTY && getColour(getPiece(row + 1, col + 1)) != c && getPiece(row + 2, col + 2) == Piece.EMPTY) {
+		    			validMoves.add(new Move(row, col, row + 2, col + 2));
+		    		}
+		    		if(col >= 2 && getPiece(row + 1, col - 1) != Piece.EMPTY && getColour(getPiece(row + 1, col - 1)) != c && getPiece(row + 2, col - 2) == Piece.EMPTY) {
+		    			validMoves.add(new Move(row, col, row + 2, col - 2));
+		    		}
+		    		
+		    		//Jump up
+	    			if(col <= 5 && getPiece(row - 1, col + 1) != Piece.EMPTY && getColour(getPiece(row - 1, col + 1)) != c && getPiece(row - 2, col + 2) == Piece.EMPTY) {
+		    			validMoves.add(new Move(row, col, row - 2, col + 2));
+		    		}
+		    		if(col >= 2 && getPiece(row - 1, col - 1) != Piece.EMPTY && getColour(getPiece(row  - 1, col - 1)) != c && getPiece(row - 2, col - 2) == Piece.EMPTY) {
+		    			validMoves.add(new Move(row, col, row - 2, col - 2));
+		    		}
+	    		
+    		
     	}
 //    	for(int i=0; i < validMoves.size(); i++) {
 //    		System.out.println("MOVE " + i);
@@ -284,6 +297,7 @@ public class Board {
     }
     
     public Piece getPiece(int row, int col) {
+    	if(row < 0 || row > 7 || col < 0 || col > 7) return null;
     	return this.board[row][col];
     }
     
@@ -309,6 +323,9 @@ public class Board {
     	return null;
     }
     
+    /**
+     * Update Piece count after a jump
+     */
     public void updatePieceCount() {
     	this.numBlackKingPieces = 0;
     	this.numBlackPieces = 0;
@@ -322,6 +339,15 @@ public class Board {
 				else if(this.board[i][j] == Piece.BLACK_KING) this.numBlackKingPieces++;
 				else if(this.board[i][j] == Piece.RED_KING) this.numRedKingPieces++;
 			}
+    	}
+    }
+    
+    private void checkForKingship(int row, int col) {
+    	if((row == 0 && this.board[row][col] == Piece.RED)) {
+			this.board[row][col] = Piece.RED_KING; 
+		}
+    	else if(row == 7 && this.board[row][col] == Piece.BLACK) {
+    		this.board[row][col] = Piece.BLACK_KING;
     	}
     }
 }

@@ -90,6 +90,36 @@ public class Testing {
 		Move move3 = new Move(2,3,4,1);
 		board.move(move3, Player.Colour.BLACK);
 		board.printBoard();
+		Move move4 = new Move(4,1,5,0);
+		board.move(move4, Player.Colour.BLACK);
+		
+		Move move5 = new Move(5,2,4,3);
+		board.move(move5, Player.Colour.RED);
+		Move move6 = new Move(4,3,3,2);
+		board.move(move6, Player.Colour.RED);
+		Move move7 = new Move(6,1,5,2);
+		board.move(move7, Player.Colour.RED);
+		Move move8 = new Move(5,2,4,3);
+		board.move(move8, Player.Colour.RED);
+		Move move9 = new Move(4,3,3,4);
+		board.move(move9, Player.Colour.RED);
+		Move move10 = new Move(7,0,6,1);
+		board.move(move10, Player.Colour.RED);
+		Move move11 = new Move(6,1,5,2);
+		board.move(move11, Player.Colour.RED);
+		
+		Move move12 = new Move(5,0,6,1);
+		board.move(move12, Player.Colour.BLACK);
+		Move move13 = new Move(6,1,7,0);
+		board.move(move13, Player.Colour.BLACK);
+		Move move14 = new Move(7,0,6,1);
+		board.move(move14, Player.Colour.BLACK);
+		board.printBoard();
+
+		Move move15 = new Move(6,1,4,3);
+		board.move(move15, Player.Colour.BLACK);
+		
+		board.printBoard();
 		constructTree(board, null);
 	}
 }
