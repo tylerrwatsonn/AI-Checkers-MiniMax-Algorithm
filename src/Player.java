@@ -4,7 +4,9 @@ public class Player {
 	
 	private Colour colour;
 	
-	private enum Colour {
+	public enum Colour {
 		BLACK, RED;
 	}
+	
+	
 }

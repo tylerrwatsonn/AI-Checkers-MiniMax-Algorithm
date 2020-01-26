@@ -1,4 +1,6 @@
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class Board {
 	
@@ -14,6 +16,10 @@ public class Board {
     
     public enum Piece { 
     	EMPTY, BLACK, RED, BLACK_KING, RED_KING
+    }
+    
+    public enum Result {
+    	COMPLETED, INVALID_POSITION, INVALID_PIECE, ANOTHER_TURN, GAME_OVER
     }
     
     /**
@@ -103,8 +109,137 @@ public class Board {
     	System.out.println();
     }
     
+    /**
+     * Check validity of certain move
+     * @param move
+     * @param c
+     * @return
+     */
+    public Result move(Move move, Player.Colour c) {
+    	if(move == null) {
+    		return Result.GAME_OVER;
+    	}
+    	
+    	//Get move attributes
+    	int startRow = move.getStartRow();
+    	int startCol = move.getStartCol();
+    	int endRow = move.getEndRow();
+    	int endCol = move.getEndCol();
+    	
+    	if(!isMovingOwnPiece(startRow, startCol, c) || getPiece(startRow, startCol) == Piece.EMPTY) {
+    		return Result.INVALID_PIECE;
+    	}
+    	
+    	List<Move> possibleMoves = generateListOfPossibleMoves(c);
+    	
+    	if(contains(possibleMoves, move)) {
+    		Piece temp = this.board[startRow][startCol];
+    		this.board[startRow][startCol] = this.board[endRow][endCol];
+    		this.board[endRow][endCol] = temp;
+    	}
+    	
+    	
+    	
+    	return Result.COMPLETED;
+    	
+    }
     
+    /**
+     * Check if piece is valid
+     * @param row
+     * @param col
+     * @param c
+     * @return
+     */
+    private boolean isMovingOwnPiece(int row, int col, Player.Colour c) {
+    	Piece piece = getPiece(row, col);
+    	if (c == Player.Colour.BLACK) {
+    		return (piece == Piece.BLACK || piece == Piece.BLACK_KING);
+    	}
+    	else if (c == Player.Colour.RED) {
+    		return (piece == Piece.RED || piece == Piece.RED_KING);
+    	}
+    	return false;
+    }
     
+    /**
+     * Generate list of possible moves from colour
+     * @param c
+     * @return
+     */
+    private ArrayList<Move> generateListOfPossibleMoves(Player.Colour c) {
+    	List<Move> possibleMoves = new ArrayList<Move>();
+    	
+    	for(int i = 0; i<SIZE; i++) {
+    		for(int j=0; j<SIZE; j++) {
+    			
+    			if(getPiece(i, j) != Piece.EMPTY) possibleMoves.addAll(getValidMoves(i, j, c));
+    		}
+    	}
+    	return (ArrayList<Move>) possibleMoves;
+    	
+    }
+    
+    /**
+     * Get validMoves from position and colour
+     * @param row
+     * @param col
+     * @param c
+     * @return
+     */
+    private List<Move> getValidMoves(int row, int col, Player.Colour c) {
+    	ArrayList<Move> validMoves = new ArrayList<Move>();
+    	Piece piece = getPiece(row, col);
+    	if(piece == Piece.BLACK) {
+    		if(col > 0 && getPiece(row + 1, col - 1) == Piece.EMPTY) {
+    			validMoves.add(new Move(row, col, row + 1, col -1));
+    		}
+    		
+    		if (col < SIZE - 1 ) {
+    			if(getPiece(row + 1, col + 1) == Piece.EMPTY) {
+    				validMoves.add(new Move(row, col, row+1, col+1));
+    			}
+    		}
+    	}
+    	
+    	else if(piece == Piece.BLACK_KING || piece == Piece.RED_KING) {
+    		if(col > 0) {
+    			if(getPiece(row + 1, col - 1) == Piece.EMPTY) {
+    				validMoves.add(new Move(row, col, row + 1, col - 1));
+    			}
+    			if(getPiece(row - 1, col - 1) == Piece.EMPTY) {
+    				validMoves.add(new Move(row, col, row - 1, col - 1));
+    			}
+    		}
+    		else if(col < SIZE - 1) {
+    			if(getPiece(row + 1, col + 1) == Piece.EMPTY) {
+    				validMoves.add(new Move(row, col, row + 1, col + 1));
+    			}
+    			if(getPiece(row - 1, col + 1) == Piece.EMPTY) {
+    				validMoves.add(new Move(row, col, row - 1, col + 1));
+    			}
+    		}
+    	}
+    	for(int i=0; i < validMoves.size(); i++) {
+    		System.out.println("MOVE " + i);
+    		System.out.println("SR" + validMoves.get(i).getStartRow());
+    		System.out.println("SC"+validMoves.get(i).getStartCol());
+    		System.out.println("ER"+validMoves.get(i).getEndRow());
+    		System.out.println("EC"+validMoves.get(i).getEndCol());
+    		System.out.println();
+    	}
+    	return validMoves;
+    }
+    
+    private boolean contains(List<Move> list, Move m) {
+    	for(int i=0; i<list.size(); i++) {
+    		if(list.get(i).getStartCol() == m.getStartCol() && list.get(i).getStartRow() == m.getStartRow()
+    				&& list.get(i).getEndCol() == m.getEndCol() && list.get(i).getEndRow() == m.getEndRow()) {
+    			return true;
+    		}
+    	}
+    	return false;
+    }
     
     //-----GETTERS AND SETTERS------//
     
