@@ -21,13 +21,7 @@ public class Testing {
 			Player.Colour nextColour = bt.getColour() == Player.Colour.BLACK ? Player.Colour.RED : Player.Colour.BLACK;
 			BoardTree child = new BoardTree(nextBoard, nextColour);
 			bt.addChild(child);
-			System.out.println("NEXT BOARD " + k);
-			nextBoard.printBoard();
 		}
-		System.out.println("FOR THIS BOARD ");
-		b.printBoard();
-		System.out.println("CHILDREN SIZE: "+bt.getChildren().size());
-		System.out.println();
 	}
 	
 	/**
@@ -43,16 +37,32 @@ public class Testing {
 		if(bt == null) {
 			bt = new BoardTree(b);
 		}
-			
+		bt.setColour(Player.Colour.RED);	
 		constructChildren(bt);
-	
 		
+		int totalBoards = 0;
+	
+		b.printBoard();
 		for(BoardTree childBT: bt.getChildren()) {
+			totalBoards++;
+			System.out.println("\tCHILD: HVal = "+childBT.getHeuristicValue());
+			childBT.getBoard().printBoard();
 			constructChildren(childBT);
-			for(BoardTree grandChildBT: childBT.getChildren()) {
-				constructChildren(grandChildBT);
-			}
+//			for(BoardTree grandChildBT: childBT.getChildren()) {
+//				totalBoards++;
+//				System.out.println("\t\tGRANDCHILD: ");
+//				grandChildBT.getBoard().printBoard();
+//				constructChildren(grandChildBT);
+//				for(BoardTree greatGrandChildBT: grandChildBT.getChildren()) {
+//					totalBoards++;
+//					System.out.println("GREATGRANDCHILD: ");
+//					greatGrandChildBT.getBoard().printBoard();
+//				}
+//				System.out.println("***************************************");
+//			}
+			System.out.println("-------------------------------------------");
 		}
+		System.out.println("TOTAL BOARDS: "+totalBoards);
 		
 		
 		
@@ -71,6 +81,15 @@ public class Testing {
 //		board.move(move2, Player.Colour.RED);
 		board.printBoard();
 		System.out.println();
+		Move move1 = new Move(5,0,4,1);
+		board.move(move1, Player.Colour.RED);
+		board.printBoard();
+		Move move2 = new Move(4,1,3,2);
+		board.move(move2, Player.Colour.RED);
+		board.printBoard();
+		Move move3 = new Move(2,3,4,1);
+		board.move(move3, Player.Colour.BLACK);
+		board.printBoard();
 		constructTree(board, null);
 	}
 }

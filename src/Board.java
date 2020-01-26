@@ -136,6 +136,12 @@ public class Board {
     		Piece temp = this.board[startRow][startCol];
     		this.board[startRow][startCol] = this.board[endRow][endCol];
     		this.board[endRow][endCol] = temp;
+    		
+    		//take out jumped piece
+    		if(Math.abs(startCol - endCol) == 2) {
+    			this.board[(startRow + endRow)/2][(startCol + endCol)/2] = Piece.EMPTY;
+    			this.updatePieceCount();
+    		}
     	}
     	
     	
@@ -191,9 +197,9 @@ public class Board {
     	int rowOffset = c == Player.Colour.BLACK ? 1 : -1;	//To dictate allowed direction
     	
     	
-    	if (piece == Piece.BLACK || piece == Piece.RED) {
+    	if ((piece == Piece.BLACK && c == Player.Colour.BLACK) || (piece == Piece.RED && c == Player.Colour.RED)) {
     		if(!(row + rowOffset == 8 || row + rowOffset == -1)) {	//check that the desired location is within range
-	    		if( col > 0 && getPiece(row + rowOffset, col - 1) == Piece.EMPTY) {
+	    		if(col > 0 && getPiece(row + rowOffset, col - 1) == Piece.EMPTY) {
 	    			validMoves.add(new Move(row, col, row + rowOffset, col - 1));
 	    		}
 	    		
@@ -201,6 +207,17 @@ public class Board {
 	    			if(getPiece(row + rowOffset, col + 1) == Piece.EMPTY) {
 	    				validMoves.add(new Move(row, col, row + rowOffset, col + 1));
 	    			}
+	    		}
+	    		
+	    		//-----------------JUMPING-----------
+	    		
+	    		//Jump to right
+	    		if(col <= 5 && getPiece(row + rowOffset, col + 1) != Piece.EMPTY && getColour(getPiece(row + rowOffset, col + 1)) != c && getPiece(row + 2*rowOffset, col + 2) == Piece.EMPTY) {
+	    			validMoves.add(new Move(row, col, row + 2*rowOffset, col + 2));
+	    		}
+	    		//Jump to left
+	    		if(col >= 2 && getPiece(row + rowOffset, col - 1) != Piece.EMPTY && getColour(getPiece(row + rowOffset, col - 1)) != c && getPiece(row + 2*rowOffset, col - 2) == Piece.EMPTY) {
+	    			validMoves.add(new Move(row, col, row + 2*rowOffset, col - 2));
 	    		}
     		}
     	}
@@ -284,5 +301,27 @@ public class Board {
     		copy[i] = Arrays.copyOf(this.board[i], this.board[i].length);
     	}
     	return copy;
+    }
+    
+    static public Player.Colour getColour(Piece piece) {
+    	if (piece == Piece.BLACK || piece == Piece.BLACK_KING) return Player.Colour.BLACK;
+    	else if (piece == Piece.RED || piece == Piece.RED_KING) return Player.Colour.RED;
+    	return null;
+    }
+    
+    public void updatePieceCount() {
+    	this.numBlackKingPieces = 0;
+    	this.numBlackPieces = 0;
+    	this.numRedKingPieces = 0;
+    	this.numRedPieces = 0;
+    	
+    	for(int i = 0; i<SIZE; i++) {
+	    	for(int j = 0; j<SIZE; j++) {
+				if(this.board[i][j] == Piece.BLACK) this.numBlackPieces++;
+				else if(this.board[i][j] == Piece.RED) this.numRedPieces++;
+				else if(this.board[i][j] == Piece.BLACK_KING) this.numBlackKingPieces++;
+				else if(this.board[i][j] == Piece.RED_KING) this.numRedKingPieces++;
+			}
+    	}
     }
 }

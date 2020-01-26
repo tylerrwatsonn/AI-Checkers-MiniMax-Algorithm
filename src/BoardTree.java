@@ -52,4 +52,8 @@ public class BoardTree {
 	public Player.Colour getColour() {
 		return this.colour;
 	}
+	
+	public void setColour(Player.Colour colour) {
+		this.colour = colour;
+	}
 }
