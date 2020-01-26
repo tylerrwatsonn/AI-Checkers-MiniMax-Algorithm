@@ -14,14 +14,29 @@ public class BoardTree {
 		calculateHeuristicValue();
 	}
 	
+	public BoardTree(Board b) {
+		this.board = b;
+		this.children = new ArrayList<BoardTree>();
+		calculateHeuristicValue();
+	}
+	
 	public BoardTree(Board b, Player p) {
 		this.board = b;
 		this.player = p;
+		this.children = new ArrayList<BoardTree>();
 		calculateHeuristicValue();
 	}
 	
 	private void calculateHeuristicValue() {
 		this.heuristicValue = board.getTotalNumBlackPieces() - board.getTotalNumRedPieces();
+	}
+	
+	public void addChild(BoardTree bt) {
+		this.children.add(bt);
+	}
+	
+	public int getHeuristicValue() {
+		return this.heuristicValue;
 	}
 	
 }

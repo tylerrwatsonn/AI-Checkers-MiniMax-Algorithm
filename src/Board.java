@@ -139,7 +139,6 @@ public class Board {
     	}
     	
     	
-    	
     	return Result.COMPLETED;
     	
     }
@@ -167,12 +166,11 @@ public class Board {
      * @param c
      * @return
      */
-    private ArrayList<Move> generateListOfPossibleMoves(Player.Colour c) {
+    public ArrayList<Move> generateListOfPossibleMoves(Player.Colour c) {
     	List<Move> possibleMoves = new ArrayList<Move>();
     	
     	for(int i = 0; i<SIZE; i++) {
     		for(int j=0; j<SIZE; j++) {
-    			
     			if(getPiece(i, j) != Piece.EMPTY) possibleMoves.addAll(getValidMoves(i, j, c));
     		}
     	}
@@ -190,17 +188,34 @@ public class Board {
     private List<Move> getValidMoves(int row, int col, Player.Colour c) {
     	ArrayList<Move> validMoves = new ArrayList<Move>();
     	Piece piece = getPiece(row, col);
-    	if(piece == Piece.BLACK) {
-    		if(col > 0 && getPiece(row + 1, col - 1) == Piece.EMPTY) {
-    			validMoves.add(new Move(row, col, row + 1, col -1));
-    		}
-    		
-    		if (col < SIZE - 1 ) {
-    			if(getPiece(row + 1, col + 1) == Piece.EMPTY) {
-    				validMoves.add(new Move(row, col, row+1, col+1));
-    			}
+    	int rowOffset = c == Player.Colour.BLACK ? 1 : -1;	//To dictate allowed direction
+    	
+    	
+    	if (piece == Piece.BLACK || piece == Piece.RED) {
+    		if(!(row + rowOffset == 8 || row + rowOffset == -1)) {	//check that the desired location is within range
+	    		if( col > 0 && getPiece(row + rowOffset, col - 1) == Piece.EMPTY) {
+	    			validMoves.add(new Move(row, col, row + rowOffset, col - 1));
+	    		}
+	    		
+	    		if (col < SIZE - 1 ) {
+	    			if(getPiece(row + rowOffset, col + 1) == Piece.EMPTY) {
+	    				validMoves.add(new Move(row, col, row + rowOffset, col + 1));
+	    			}
+	    		}
     		}
     	}
+    	
+//    	if(c == Player.Colour.RED) {
+//    		if(col > 0 && getPiece(row - 1, col - 1) == Piece.EMPTY) {
+//    			validMoves.add(new Move(row, col, row - 1, col - 1));
+//    		}
+//    		
+//    		if (col < SIZE - 1 ) {
+//    			if(getPiece(row - 1, col + 1) == Piece.EMPTY) {
+//    				validMoves.add(new Move(row, col, row - 1, col + 1));
+//    			}
+//    		}
+//    	}
     	
     	else if(piece == Piece.BLACK_KING || piece == Piece.RED_KING) {
     		if(col > 0) {
@@ -220,14 +235,14 @@ public class Board {
     			}
     		}
     	}
-    	for(int i=0; i < validMoves.size(); i++) {
-    		System.out.println("MOVE " + i);
-    		System.out.println("SR" + validMoves.get(i).getStartRow());
-    		System.out.println("SC"+validMoves.get(i).getStartCol());
-    		System.out.println("ER"+validMoves.get(i).getEndRow());
-    		System.out.println("EC"+validMoves.get(i).getEndCol());
-    		System.out.println();
-    	}
+//    	for(int i=0; i < validMoves.size(); i++) {
+//    		System.out.println("MOVE " + i);
+//    		System.out.println("SR" + validMoves.get(i).getStartRow());
+//    		System.out.println("SC"+validMoves.get(i).getStartCol());
+//    		System.out.println("ER"+validMoves.get(i).getEndRow());
+//    		System.out.println("EC"+validMoves.get(i).getEndCol());
+//    		System.out.println();
+//    	}
     	return validMoves;
     }
     
@@ -255,5 +270,8 @@ public class Board {
     	return this.board[row][col];
     }
     
+    public Piece[][] getBoard() {
+    	return this.board;
+    }
     
 }

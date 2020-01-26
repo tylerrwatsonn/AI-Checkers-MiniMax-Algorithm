@@ -13,6 +13,14 @@ public class Move {
 		this.endCol = endCol;
 	}
 	
+	public void printMove() {
+		System.out.println("NEXT MOVE");
+		System.out.println("SR " + getStartRow());
+		System.out.println("SC "+getStartCol());
+		System.out.println("ER "+getEndRow());
+		System.out.println("EC "+getEndCol());
+		System.out.println();
+	}
 	
 	
 	//--------GETTERS AND SETTERS
