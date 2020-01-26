@@ -274,4 +274,15 @@ public class Board {
     	return this.board;
     }
     
+    /**
+     * Alternative to cloning to avoid changing original board with move function
+     * @return
+     */
+    public Piece[][] copyBoard() {
+    	Piece[][] copy = new Piece[SIZE][SIZE];
+    	for(int i=0; i<SIZE; i++) {
+    		copy[i] = Arrays.copyOf(this.board[i], this.board[i].length);
+    	}
+    	return copy;
+    }
 }

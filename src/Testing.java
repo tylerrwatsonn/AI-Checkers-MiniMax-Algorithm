@@ -7,6 +7,34 @@ public class Testing {
 		
 	}
 	
+	/**
+	 * Construct children of BoardTree
+	 * @param bt
+	 */
+	static private void constructChildren(BoardTree bt) {
+		Board b = bt.getBoard();
+		List<Move> possibleMoves = b.generateListOfPossibleMoves(bt.getColour());
+		
+		for(int k = 0; k < possibleMoves.size(); k++) {
+			Board nextBoard = new Board(b.copyBoard());
+			nextBoard.move(possibleMoves.get(k), bt.getColour());
+			Player.Colour nextColour = bt.getColour() == Player.Colour.BLACK ? Player.Colour.RED : Player.Colour.BLACK;
+			BoardTree child = new BoardTree(nextBoard, nextColour);
+			bt.addChild(child);
+			System.out.println("NEXT BOARD " + k);
+			nextBoard.printBoard();
+		}
+		System.out.println("FOR THIS BOARD ");
+		b.printBoard();
+		System.out.println("CHILDREN SIZE: "+bt.getChildren().size());
+		System.out.println();
+	}
+	
+	/**
+	 * Construct BoardTree for current Board
+	 * @param b
+	 * @param bt
+	 */
 	public static void constructTree(Board b, BoardTree bt) {
 		//get children
 		if(b == null) {
@@ -15,20 +43,19 @@ public class Testing {
 		if(bt == null) {
 			bt = new BoardTree(b);
 		}
+			
+		constructChildren(bt);
+	
 		
-		List<Move> possibleMoves = b.generateListOfPossibleMoves(Player.Colour.BLACK);
-		System.out.println("POSSIBLE MOVES SIZE: "+ possibleMoves.size());
-		
-		for(int i = 0; i < possibleMoves.size(); i++) {
-			Board.Piece[][] copy = new Board.Piece[8][8];
-			java.lang.System.arraycopy(b.getBoard(), 0, copy, 0, b.getBoard().length);
-			Board nextBoard = new Board();
-			nextBoard.move(possibleMoves.get(i), Player.Colour.BLACK);
-			BoardTree child = new BoardTree(nextBoard);
-			bt.addChild(child);
-			System.out.println("NEXT BOARD " + i);
-			nextBoard.printBoard();
+		for(BoardTree childBT: bt.getChildren()) {
+			constructChildren(childBT);
+			for(BoardTree grandChildBT: childBT.getChildren()) {
+				constructChildren(grandChildBT);
+			}
 		}
+		
+		
+		
 		
 		
 		

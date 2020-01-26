@@ -5,24 +5,26 @@ public class BoardTree {
 	
 	private List<BoardTree> children;
 	private Board board;
-	private Player player;	//
+	private Player.Colour colour;	//
 	private int heuristicValue;	//heuristic value to judge board state based on black-red pieces
 	
 	public BoardTree() {
 		this.children = new ArrayList<BoardTree>();
 		this.board = new Board();
+		this.colour = Player.Colour.BLACK;
 		calculateHeuristicValue();
 	}
 	
 	public BoardTree(Board b) {
 		this.board = b;
 		this.children = new ArrayList<BoardTree>();
+		this.colour = Player.Colour.BLACK;
 		calculateHeuristicValue();
 	}
 	
-	public BoardTree(Board b, Player p) {
+	public BoardTree(Board b, Player.Colour c) {
 		this.board = b;
-		this.player = p;
+		this.colour = c;
 		this.children = new ArrayList<BoardTree>();
 		calculateHeuristicValue();
 	}
@@ -39,4 +41,15 @@ public class BoardTree {
 		return this.heuristicValue;
 	}
 	
+	public List<BoardTree> getChildren() {
+		return this.children;
+	}
+	
+	public Board getBoard() {
+		return this.board;
+	}
+	
+	public Player.Colour getColour() {
+		return this.colour;
+	}
 }
