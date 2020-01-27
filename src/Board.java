@@ -288,12 +288,20 @@ public class Board {
     
     //-----GETTERS AND SETTERS------//
     
-    public int getTotalNumBlackPieces() {
-    	return this.numBlackPieces + this.numBlackKingPieces;
+    public int getNumBlackPieces() {
+    	return this.numBlackPieces;
     }
     
-    public int getTotalNumRedPieces() {
-    	return this.numRedPieces + this.numRedKingPieces;
+    public int getNumBlackKingPieces() {
+    	return this.numBlackKingPieces;
+    }
+    
+    public int getNumRedPieces() {
+    	return this.numRedPieces;
+    }
+    
+    public int getNumRedKingPieces() {
+    	return this.numRedKingPieces;
     }
     
     public Piece getPiece(int row, int col) {

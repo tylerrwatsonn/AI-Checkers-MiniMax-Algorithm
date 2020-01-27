@@ -6,7 +6,7 @@ public class BoardTree {
 	private List<BoardTree> children;
 	private Board board;
 	private Player.Colour colour;	//
-	private int heuristicValue;	//heuristic value to judge board state based on black-red pieces
+	private double heuristicValue;	//heuristic value to judge board state based on black-red pieces
 	
 	public BoardTree() {
 		this.children = new ArrayList<BoardTree>();
@@ -30,14 +30,16 @@ public class BoardTree {
 	}
 	
 	private void calculateHeuristicValue() {
-		this.heuristicValue = board.getTotalNumBlackPieces() - board.getTotalNumRedPieces();
+		double kingWeight = 1.3;
+		this.heuristicValue = board.getNumBlackKingPieces()*kingWeight + board.getNumBlackPieces()
+		 - board.getNumRedKingPieces()*kingWeight - board.getNumRedPieces();
 	}
 	
 	public void addChild(BoardTree bt) {
 		this.children.add(bt);
 	}
 	
-	public int getHeuristicValue() {
+	public double getHeuristicValue() {
 		return this.heuristicValue;
 	}
 	
