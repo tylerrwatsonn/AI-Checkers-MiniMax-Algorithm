@@ -1,4 +1,5 @@
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 public class Testing {
@@ -45,12 +46,12 @@ public class Testing {
 		for(BoardTree childBT: bt.getChildren()) {
 			totalBoards++;
 			System.out.println("\tCHILD: HVal = "+childBT.getHeuristicValue());
-			childBT.getBoard().printBoard();
+			//childBT.getBoard().printBoard();
 			constructChildren(childBT);
 			for(BoardTree grandChildBT: childBT.getChildren()) {
 				totalBoards++;
 				System.out.println("\t\tGRANDCHILD: "+grandChildBT.getHeuristicValue());
-				grandChildBT.getBoard().printBoard();
+				//grandChildBT.getBoard().printBoard();
 				constructChildren(grandChildBT);
 				for(BoardTree greatGrandChildBT: grandChildBT.getChildren()) {
 					totalBoards++;
@@ -124,7 +125,7 @@ public class Testing {
 	 * @param c
 	 * @return
 	 */
-	public static double minimax(BoardTree bt, int depth, double alpha, double beta, Player.Colour c) {
+	public static double minimaxPruning(BoardTree bt, int depth, double alpha, double beta, Player.Colour c) {
 		if (depth == 0) {
 			return bt.getHeuristicValue();
 		}
@@ -132,8 +133,9 @@ public class Testing {
 		if (c == Player.Colour.BLACK) {	//MAXIMIZING PLAYER based on heuristic calculation
 			double maxEval = Double.NEGATIVE_INFINITY;
 			for (BoardTree child : bt.getChildren()) {
-				double eval = minimax(child, depth - 1, alpha, beta, Player.Colour.RED);
+				double eval = minimaxPruning(child, depth - 1, alpha, beta, Player.Colour.RED);
 				maxEval = Math.max(maxEval, eval);
+				//PRUNING
 				alpha = Math.max(alpha, eval);		//update alpha (black's best possible score
 				if (beta <= alpha) break;	//this means that there is a better option for the previous player (red) earlier on in the tree so the rest of the nodes can be pruned
 			}
@@ -143,7 +145,8 @@ public class Testing {
 		else if (c == Player.Colour.RED) { //MINIMIZING PLAYER
 			double minEval = Double.POSITIVE_INFINITY;
 			for(BoardTree child : bt.getChildren()) {
-				double eval = minimax(child, depth - 1, alpha, beta, Player.Colour.BLACK);
+				double eval = minimaxPruning(child, depth - 1, alpha, beta, Player.Colour.BLACK);
+				//PRUNING
 				minEval = Math.min(minEval, eval);
 				beta = Math.min(eval, beta);	//update beta (red's best possible score)
 				if (beta <= alpha) break;	//same idea as before
@@ -152,6 +155,53 @@ public class Testing {
 		}
 		
 		return 5.0;
+	}
+	
+	public static double minimax(BoardTree bt, int depth, Player.Colour c) {
+		if (depth == 0) {
+			return bt.getHeuristicValue();
+		}
+		
+		if (c == Player.Colour.BLACK) {	//MAXIMIZING PLAYER based on heuristic calculation
+			double maxEval = Double.NEGATIVE_INFINITY;
+			for (BoardTree child : bt.getChildren()) {
+				double eval = minimax(child, depth - 1, Player.Colour.RED);
+				maxEval = Math.max(maxEval, eval);
+			}
+			return maxEval;
+		}
+		
+		else if (c == Player.Colour.RED) { //MINIMIZING PLAYER
+			double minEval = Double.POSITIVE_INFINITY;
+			for(BoardTree child : bt.getChildren()) {
+				double eval = minimax(child, depth - 1, Player.Colour.BLACK);
+				//PRUNING
+				minEval = Math.min(minEval, eval);
+			}
+			return minEval;
+		}
+		
+		return 5.0;
+	}
+	
+	/**
+	 * Compare time between pruning and no pruning
+	 * @param bt
+	 */
+	public static void comparePruningTime(BoardTree bt) {
+		long start = Calendar.getInstance().getTimeInMillis();
+		double minimaxPruningResult = minimaxPruning(bt, 3, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Player.Colour.BLACK);
+		long end = Calendar.getInstance().getTimeInMillis();
+
+		System.out.println("MiniMaxPruning result: " + minimaxPruningResult);
+		System.out.println("MINIMAX TOOK: " + (end - start) + " ms");
+		
+		start = Calendar.getInstance().getTimeInMillis();
+		double minimaxResult = minimax(bt, 3, Player.Colour.BLACK);
+		end = Calendar.getInstance().getTimeInMillis();
+
+		System.out.println("MiniMax result: " + minimaxResult);
+		System.out.println("MINIMAX TOOK: " + (end - start) + " ms");
 	}
 	
 	public static void main(String[] args) {
@@ -196,7 +246,7 @@ public class Testing {
 //		board.printBoard();
 		
 		BoardTree bt = constructTree(board, null);
-		double minimaxResult = minimax(bt, 3, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Player.Colour.BLACK);
-		System.out.println("MiniMax result: " + minimaxResult);
+		
+		comparePruningTime(bt);
 	}
 }
