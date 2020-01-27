@@ -1,6 +1,8 @@
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Random;
 
 public class Testing {
 	
@@ -30,7 +32,7 @@ public class Testing {
 	 * @param b
 	 * @param bt
 	 */
-	public static BoardTree constructTree(Board b, BoardTree bt) {
+	public static BoardTree constructTree(Board b, BoardTree bt, int depth) {
 		//get children
 		if(b == null) {
 			b = new Board();
@@ -42,25 +44,34 @@ public class Testing {
 		
 		int totalBoards = 0;
 	
-		b.printBoard();
+//		b.printBoard();
+//		BoardTree temp = bt;
+//		for(int i = 0; i < depth; i++) {
+//			constructChildren(temp);
+//			for(BoardTree child: temp.getChildren()) {
+//				constructChildren(child);
+//			}
+//			
+//		}
+		
 		for(BoardTree childBT: bt.getChildren()) {
 			totalBoards++;
-			System.out.println("\tCHILD: HVal = "+childBT.getHeuristicValue());
+			//System.out.println("\tCHILD: HVal = "+childBT.getHeuristicValue());
 			//childBT.getBoard().printBoard();
 			constructChildren(childBT);
 			for(BoardTree grandChildBT: childBT.getChildren()) {
 				totalBoards++;
-				System.out.println("\t\tGRANDCHILD: "+grandChildBT.getHeuristicValue());
+				//System.out.println("\t\tGRANDCHILD: "+grandChildBT.getHeuristicValue());
 				//grandChildBT.getBoard().printBoard();
 				constructChildren(grandChildBT);
 				for(BoardTree greatGrandChildBT: grandChildBT.getChildren()) {
 					totalBoards++;
 					//System.out.println("\t\t\tGREATGRANDCHILD: "+ greatGrandChildBT.getHeuristicValue());
-					greatGrandChildBT.getBoard().printBoard();
+					//greatGrandChildBT.getBoard().printBoard();
 				}
-				System.out.println("***************************************");
+				//System.out.println("***************************************");
 			}
-			System.out.println("-------------------------------------------");
+			//System.out.println("-------------------------------------------");
 		}
 		System.out.println("TOTAL BOARDS: "+totalBoards);
 		
@@ -111,10 +122,56 @@ public class Testing {
 		board.move(move15, Player.Colour.BLACK);
 		
 		board.printBoard();
-		constructTree(board, null);
+		constructTree(board, null, 3);
 	}
 	
-	
+	/**
+	 * 
+	 * @param board
+	 * @param depth
+	 * @param c
+	 * @param maximizingPlayer
+	 * @return best move based on minimax
+	 */
+	public static Move findBestMiniMaxMove(Board board, int depth, Player.Colour c, boolean maximizingPlayer) {
+		//constructTree
+		BoardTree bt = constructTree(board, null, depth);
+		
+		ArrayList<Double> heuristics = new ArrayList<Double>();
+		
+		//Iterate through children to populate heuristics list
+		for(BoardTree child: bt.getChildren()) {
+			double minimaxResult = minimaxPruning(child, depth-1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, maximizingPlayer);
+			System.out.println("MINIMAX RESULT: " + minimaxResult);
+			heuristics.add(minimaxResult);
+		}
+		
+		ArrayList<Move> possibleMoves = bt.getBoard().generateListOfPossibleMoves(c);	//moves to choose from
+		
+		double maxHeuristic = Double.NEGATIVE_INFINITY;
+		Random rand = new Random();
+		
+		//find max heuristic
+		for(int i = 0; i < heuristics.size(); i++) {
+			maxHeuristic = Math.max(maxHeuristic, heuristics.get(i));
+			possibleMoves.get(i).printMove();
+			System.out.println(heuristics.get(i));
+		}
+		System.out.println();
+		System.out.println("Max heuristic: "+ maxHeuristic);
+		
+		//weed out any child with heuristic lower than the maximum
+		for(int i = 0; i < heuristics.size(); i++) {
+			if (heuristics.get(i) < maxHeuristic) {
+				heuristics.remove(i);
+				possibleMoves.remove(i);
+				i--;
+			}
+		}
+		
+		return possibleMoves.get(rand.nextInt(possibleMoves.size()));
+		
+	}
 	
 	/**
 	 * Minimax algorithm with alpha-beta pruning
@@ -122,18 +179,19 @@ public class Testing {
 	 * @param depth
 	 * @param alpha	best score for black (computer)
 	 * @param beta	best score for red (player)
-	 * @param c
-	 * @return
+	 * @param maximizingPlayer 
+	 *
+	 * @return best heuristic (double)
 	 */
-	public static double minimaxPruning(BoardTree bt, int depth, double alpha, double beta, Player.Colour c) {
+	public static double minimaxPruning(BoardTree bt, int depth, double alpha, double beta, boolean maximizingPlayer) {
 		if (depth == 0) {
 			return bt.getHeuristicValue();
 		}
 		
-		if (c == Player.Colour.BLACK) {	//MAXIMIZING PLAYER based on heuristic calculation
+		if (maximizingPlayer) {	//MAXIMIZING PLAYER based on heuristic calculation
 			double maxEval = Double.NEGATIVE_INFINITY;
 			for (BoardTree child : bt.getChildren()) {
-				double eval = minimaxPruning(child, depth - 1, alpha, beta, Player.Colour.RED);
+				double eval = minimaxPruning(child, depth - 1, alpha, beta, false);
 				maxEval = Math.max(maxEval, eval);
 				//PRUNING
 				alpha = Math.max(alpha, eval);		//update alpha (black's best possible score
@@ -142,10 +200,10 @@ public class Testing {
 			return maxEval;
 		}
 		
-		else if (c == Player.Colour.RED) { //MINIMIZING PLAYER
+		else { //MINIMIZING PLAYER
 			double minEval = Double.POSITIVE_INFINITY;
 			for(BoardTree child : bt.getChildren()) {
-				double eval = minimaxPruning(child, depth - 1, alpha, beta, Player.Colour.BLACK);
+				double eval = minimaxPruning(child, depth - 1, alpha, beta, true);
 				//PRUNING
 				minEval = Math.min(minEval, eval);
 				beta = Math.min(eval, beta);	//update beta (red's best possible score)
@@ -153,35 +211,31 @@ public class Testing {
 			}
 			return minEval;
 		}
-		
-		return 5.0;
 	}
 	
-	public static double minimax(BoardTree bt, int depth, Player.Colour c) {
+	public static double minimax(BoardTree bt, int depth, boolean maximizingPlayer) {
 		if (depth == 0) {
 			return bt.getHeuristicValue();
 		}
 		
-		if (c == Player.Colour.BLACK) {	//MAXIMIZING PLAYER based on heuristic calculation
+		if (maximizingPlayer) {	//MAXIMIZING PLAYER based on heuristic calculation
 			double maxEval = Double.NEGATIVE_INFINITY;
 			for (BoardTree child : bt.getChildren()) {
-				double eval = minimax(child, depth - 1, Player.Colour.RED);
+				double eval = minimax(child, depth - 1, false);
 				maxEval = Math.max(maxEval, eval);
 			}
 			return maxEval;
 		}
 		
-		else if (c == Player.Colour.RED) { //MINIMIZING PLAYER
+		else { //MINIMIZING PLAYER
 			double minEval = Double.POSITIVE_INFINITY;
 			for(BoardTree child : bt.getChildren()) {
-				double eval = minimax(child, depth - 1, Player.Colour.BLACK);
+				double eval = minimax(child, depth - 1, true);
 				//PRUNING
 				minEval = Math.min(minEval, eval);
 			}
 			return minEval;
 		}
-		
-		return 5.0;
 	}
 	
 	/**
@@ -190,14 +244,15 @@ public class Testing {
 	 */
 	public static void comparePruningTime(BoardTree bt) {
 		long start = Calendar.getInstance().getTimeInMillis();
-		double minimaxPruningResult = minimaxPruning(bt, 3, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Player.Colour.BLACK);
+		double minimaxPruningResult = minimaxPruning(bt, 3, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, true);
 		long end = Calendar.getInstance().getTimeInMillis();
 
 		System.out.println("MiniMaxPruning result: " + minimaxPruningResult);
 		System.out.println("MINIMAX TOOK: " + (end - start) + " ms");
+		System.out.println();
 		
 		start = Calendar.getInstance().getTimeInMillis();
-		double minimaxResult = minimax(bt, 3, Player.Colour.BLACK);
+		double minimaxResult = minimax(bt, 3, true);
 		end = Calendar.getInstance().getTimeInMillis();
 
 		System.out.println("MiniMax result: " + minimaxResult);
@@ -245,8 +300,20 @@ public class Testing {
 //		board.move(move14, Player.Colour.BLACK);
 //		board.printBoard();
 		
-		BoardTree bt = constructTree(board, null);
-		
-		comparePruningTime(bt);
+		Move bestMove = findBestMiniMaxMove(board, 3, Player.Colour.BLACK, true);
+		board.printBoard();
+		board.move(bestMove, Player.Colour.BLACK);
+		board.printBoard();
+		bestMove = findBestMiniMaxMove(board, 3, Player.Colour.BLACK, true);
+		board.move(bestMove, Player.Colour.BLACK);
+		board.printBoard();
+		bestMove = findBestMiniMaxMove(board, 3, Player.Colour.BLACK, true);
+		board.printBoard();
+		board.move(bestMove, Player.Colour.BLACK);
+		board.printBoard();
+		bestMove = findBestMiniMaxMove(board, 3, Player.Colour.BLACK, true);
+		board.printBoard();
+		board.move(bestMove, Player.Colour.BLACK);
+		board.printBoard();
 	}
 }
