@@ -1,3 +1,4 @@
+import java.io.Console;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,6 +13,16 @@ public class Board {
     private int numRedPieces;
     private int numBlackKingPieces;
     private int numRedKingPieces;
+    
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_BLACK = "\u001B[30m";
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_GREEN = "\u001B[32m";
+    public static final String ANSI_YELLOW = "\u001B[33m";
+    public static final String ANSI_BLUE = "\u001B[34m";
+    public static final String ANSI_PURPLE = "\u001B[35m";
+    public static final String ANSI_CYAN = "\u001B[36m";
+    public static final String ANSI_WHITE = "\u001B[37m";
     
     
     public enum Piece { 
@@ -99,8 +110,10 @@ public class Board {
     			else if(this.board[i][j] == Piece.RED_KING) printBoard[i][j] = "R";
     		}
     	}
+    	System.out.println(" | 0 1 2 3 4 5 6 7");
+    	System.out.println("-----------------");
     	for(int i = 0; i<SIZE; i++) {
-    		String row = "";
+    		String row = "" + i + "|";
     		for(int j = 0; j<SIZE; j++) {
     			row += " " + printBoard[i][j];
     		}
@@ -108,6 +121,35 @@ public class Board {
     	}
     	System.out.println();
     }
+    
+    
+    public void printBoard(Move move) {
+    	Board.Piece[][] bd = this.copyBoard();
+    	Board b = new Board(bd);
+    	String[][] printBoard = new String[SIZE][SIZE];
+    	for(int i = 0; i<SIZE; i++) {
+    		for(int j = 0; j<SIZE; j++) {
+    			if(this.board[i][j] == Piece.EMPTY) printBoard[i][j] = "-";
+    			else if(this.board[i][j] == Piece.BLACK) printBoard[i][j] = "b";
+    			else if(this.board[i][j] == Piece.RED) printBoard[i][j] = "r";
+    			else if(this.board[i][j] == Piece.BLACK_KING) printBoard[i][j] = "B";
+    			else if(this.board[i][j] == Piece.RED_KING) printBoard[i][j] = "R";
+    		}
+    	}
+    	System.out.println(" | 0 1 2 3 4 5 6 7");
+    	System.out.println("-----------------");
+    	for(int i = 0; i<SIZE; i++) {
+    		String row = "" + i + "|";
+    		for(int j = 0; j<SIZE; j++) {
+    			if(i== move.getStartRow() && j==move.getStartCol()) printBoard[i][j] = "S";
+    			else if(i== move.getEndRow() && j==move.getEndCol()) printBoard[i][j] = "E";
+    			row += " " + printBoard[i][j];
+    		}
+    		System.out.println(row);
+    	}
+    	System.out.println();
+    }
+    	
     
     /**
      * Check validity of certain move
@@ -245,7 +287,7 @@ public class Board {
 	    			}
 	    		}
 	    		
-	    		//------------------------JUMPIING--------
+	    		//------------------------JUMPING--------
 	    		
 	    			//Jump down
 	    			if(col <= 5 && getPiece(row + 1, col + 1) != Piece.EMPTY && getColour(getPiece(row + 1, col + 1)) != c && getPiece(row + 2, col + 2) == Piece.EMPTY) {
@@ -265,14 +307,6 @@ public class Board {
 	    		
     		
     	}
-//    	for(int i=0; i < validMoves.size(); i++) {
-//    		System.out.println("MOVE " + i);
-//    		System.out.println("SR" + validMoves.get(i).getStartRow());
-//    		System.out.println("SC"+validMoves.get(i).getStartCol());
-//    		System.out.println("ER"+validMoves.get(i).getEndRow());
-//    		System.out.println("EC"+validMoves.get(i).getEndCol());
-//    		System.out.println();
-//    	}
     	return validMoves;
     }
     
